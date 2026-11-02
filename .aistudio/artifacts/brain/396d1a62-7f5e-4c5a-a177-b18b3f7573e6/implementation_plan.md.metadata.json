@@ -1,0 +1,6 @@
+{
+  "summary":  "Plano arquitetural detalhado para o desenvolvimento do aplicativo da Bíblia King James Bilíngue (KJV 1611 + Português), comparando fluidez e naturalidade de áudio entre Android Nativo (Jetpack Compose + Google TTS) e Web/HTML (LocalStorage + Web Speech API), com suporte a publicação dupla (APK Android + GitHub Pages).",
+  "updatedAt":  "2026-10-31T15:32:02.404804249Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

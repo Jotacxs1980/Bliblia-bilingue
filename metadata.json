@@ -1,0 +1,6 @@
+{
+  "name": "Bíblia 1611 Bilíngue",
+  "description": "Bíblia King James 1611 bilíngue (inglês/português) com áudio sincronizado, introduções originais e modo offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
