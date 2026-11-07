@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bíblia King James 1611 Bilíngue</title>
-    <meta name="description" content="Bíblia King James 1611 bilíngue (Inglês e Português) com tela Home, progresso salvo em LocalStorage e áudio sincronizado.">
+    <meta name="description" content="Bíblia King James 1611 bilíngue (Inglês e Português) com todos os 66 livros, áudio sincronizado, download offline e progresso salvo.">
     <meta name="theme-color" content="#B88220">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
     <style>
         :root {
             --bg-color: #FBF7EE;
@@ -19,6 +20,7 @@
             --font-size-base: 18px;
             --font-serif: "Georgia", "Baskerville", "Times New Roman", serif;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --accent-fav: #E5A100;
         }
 
         body.dark-theme {
@@ -30,6 +32,7 @@
             --text-primary: #EAEAEA;
             --text-secondary: #A0A0A8;
             --border-color: #2E2E36;
+            --accent-fav: #FCD34D;
         }
 
         body.light-theme {
@@ -41,6 +44,7 @@
             --text-primary: #1E1E1E;
             --text-secondary: #5A5A5A;
             --border-color: #E2E0D8;
+            --accent-fav: #D97706;
         }
 
         * {
@@ -79,6 +83,7 @@
             gap: 8px;
             font-weight: bold;
             font-size: 16px;
+            cursor: pointer;
         }
 
         .badge-1611 {
@@ -96,7 +101,7 @@
             color: var(--text-primary);
             padding: 6px 14px;
             border-radius: 20px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -107,7 +112,7 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .icon-btn {
@@ -131,7 +136,7 @@
 
         /* Containers */
         main {
-            max-width: 800px;
+            max-width: 820px;
             margin: 0 auto;
             padding: 16px;
         }
@@ -183,15 +188,21 @@
             justify-content: center;
             gap: 8px;
             margin-top: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .primary-action-btn:hover {
+            opacity: 0.92;
         }
 
         .progress-bar-container {
             width: 100%;
-            height: 8px;
+            height: 10px;
             background: var(--surface-variant);
-            border-radius: 4px;
+            border-radius: 5px;
             overflow: hidden;
             margin: 10px 0;
+            border: 1px solid var(--border-color);
         }
 
         .progress-bar-fill {
@@ -211,7 +222,7 @@
 
         .stat-box {
             background: var(--surface-variant);
-            padding: 10px;
+            padding: 10px 6px;
             border-radius: 10px;
         }
 
@@ -226,6 +237,33 @@
             color: var(--text-secondary);
         }
 
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 14px 0 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-chip {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: #FFF;
+            border-color: var(--primary-color);
+        }
+
         /* Books List */
         .book-row {
             display: flex;
@@ -237,7 +275,7 @@
             border-radius: 12px;
             margin-bottom: 8px;
             cursor: pointer;
-            transition: transform 0.15s ease;
+            transition: transform 0.15s ease, border-color 0.15s ease;
         }
 
         .book-row:hover {
@@ -245,55 +283,63 @@
             border-color: var(--primary-color);
         }
 
+        .offline-tag {
+            font-size: 10px;
+            background: var(--primary-light);
+            color: var(--primary-color);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
         /* Reader View */
         .chapter-header {
             text-align: center;
-            margin-bottom: 18px;
+            margin: 10px 0 16px 0;
+            padding: 14px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
         }
 
         .chapter-header h1 {
             font-family: var(--font-serif);
-            font-size: 26px;
-            color: var(--text-primary);
+            font-size: 24px;
+            color: var(--primary-color);
             margin-bottom: 4px;
         }
 
         .chapter-badge {
-            display: inline-block;
             font-size: 12px;
-            font-weight: 600;
-            color: var(--primary-color);
-            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        /* The Argument Card */
         .argument-card {
             background-color: var(--surface-variant);
-            border: 1px solid var(--primary-color);
             border-left: 4px solid var(--primary-color);
-            border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 22px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
         }
 
         .argument-title {
-            font-size: 12px;
-            font-weight: 700;
+            font-weight: bold;
             color: var(--primary-color);
-            letter-spacing: 1px;
+            margin-bottom: 4px;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
         .argument-body {
-            font-family: var(--font-serif);
             font-style: italic;
-            font-size: 14px;
-            line-height: 1.5;
             color: var(--text-secondary);
+            line-height: 1.5;
         }
 
-        /* Verse Item */
+        /* Verses */
         .verses-container {
             display: flex;
             flex-direction: column;
@@ -304,16 +350,15 @@
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 14px 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 14px;
+            transition: all 0.25s ease;
             position: relative;
         }
 
         .verse-item.playing {
-            background-color: var(--primary-light) !important;
-            border-color: var(--primary-color) !important;
-            transform: scale(1.01);
-            box-shadow: 0 4px 14px rgba(184, 130, 32, 0.15);
+            border-color: var(--primary-color);
+            background-color: var(--surface-variant);
+            box-shadow: 0 0 0 2px var(--primary-color);
         }
 
         .verse-top {
@@ -324,44 +369,54 @@
         }
 
         .verse-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            background: var(--primary-color);
+            color: #FFFFFF;
             width: 26px;
             height: 26px;
             border-radius: 50%;
-            background: var(--primary-color);
-            color: #FFFFFF;
-            font-size: 12px;
-            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .verse-actions {
             display: flex;
-            gap: 4px;
+            gap: 6px;
         }
 
         .verse-btn {
-            background: none;
-            border: none;
+            background: var(--surface-variant);
+            border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            cursor: pointer;
             padding: 4px 8px;
-            font-size: 13px;
-            border-radius: 6px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .verse-btn:hover {
-            color: var(--primary-color);
-            background: var(--surface-variant);
+            color: var(--text-primary);
+            border-color: var(--primary-color);
+        }
+
+        .verse-btn.is-fav {
+            color: var(--accent-fav);
+            border-color: var(--accent-fav);
+            background: rgba(229, 161, 0, 0.15);
         }
 
         .verse-en {
             font-family: var(--font-serif);
             font-style: italic;
-            font-weight: 500;
-            color: var(--text-primary);
             font-size: var(--font-size-base);
+            color: var(--text-primary);
+            line-height: 1.7;
             margin-bottom: 8px;
             cursor: pointer;
         }
@@ -369,89 +424,106 @@
         .verse-divider {
             height: 1px;
             background: var(--border-color);
-            opacity: 0.5;
             margin: 6px 0 8px 0;
+            opacity: 0.7;
         }
 
         .verse-pt {
             font-family: var(--font-sans);
+            font-size: calc(var(--font-size-base) - 1px);
             color: var(--text-secondary);
-            font-size: calc(var(--font-size-base) * 0.95);
+            line-height: 1.6;
         }
 
         /* Floating Audio Bar */
         .audio-bar {
             position: fixed;
             bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 24px);
-            max-width: 650px;
+            left: 0;
+            right: 0;
             background-color: var(--surface-color);
-            border: 1px solid var(--primary-color);
-            border-radius: 20px;
+            border-top: 1px solid var(--border-color);
             padding: 10px 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+            z-index: 90;
         }
 
-        .audio-bar-header {
+        .audio-bar.on {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
+        }
+
+        .audio-bar-info {
+            flex: 1;
+            margin-right: 12px;
+            min-width: 0;
+        }
+
+        .audio-bar-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .audio-bar-sub {
+            font-size: 11px;
             color: var(--text-secondary);
         }
 
         .audio-controls {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
+            gap: 6px;
         }
 
         .play-main-btn {
             background-color: var(--primary-color);
             color: #FFFFFF;
             border: none;
-            width: 46px;
-            height: 46px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
+            font-size: 18px;
             cursor: pointer;
-            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
 
-        /* Bottom App Navigation */
-        nav.bottom-nav {
+        /* Bottom App Navigation Bar */
+        .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
-            width: 100%;
-            background: var(--surface-color);
+            right: 0;
+            height: 60px;
+            background-color: var(--surface-color);
             border-top: 1px solid var(--border-color);
             display: flex;
+            align-items: center;
             justify-content: space-around;
-            padding: 8px 0;
             z-index: 100;
         }
 
         .nav-item {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
+            flex: 1;
+            height: 100%;
             gap: 2px;
         }
 
@@ -459,18 +531,19 @@
             color: var(--primary-color);
         }
 
-        /* Modals */
+        .nav-item span:first-child {
+            font-size: 18px;
+        }
+
+        /* Modals & Overlays */
         .modal-overlay {
-            display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
             align-items: center;
             justify-content: center;
+            z-index: 150;
             padding: 16px;
         }
 
@@ -479,26 +552,29 @@
         }
 
         .modal-content {
-            background: var(--surface-color);
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            max-width: 500px;
+            max-width: 460px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
         }
 
         .chapter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+            grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin-top: 12px;
         }
@@ -506,19 +582,19 @@
         .chapter-cell {
             background: var(--surface-variant);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: 600;
             color: var(--text-primary);
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
         }
 
         .chapter-cell.active {
             background: var(--primary-color);
             color: #FFF;
+            border-color: var(--primary-color);
         }
 
         .theme-buttons {
@@ -528,38 +604,120 @@
         }
 
         .theme-btn {
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            font-weight: 600;
             background: var(--surface-variant);
+            border: 2px solid transparent;
             color: var(--text-primary);
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
         }
 
         .theme-btn.active {
             border-color: var(--primary-color);
-            background: var(--primary-color);
-            color: #FFF;
+            background: var(--primary-light);
+            color: var(--primary-color);
         }
+
+        /* Search input */
+        .search-input-field {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background: var(--surface-variant);
+        }
+
+        .search-result-ref {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        /* Toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%) translateY(30px);
+            background: var(--surface-color);
+            border: 1px solid var(--primary-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 200;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast-msg.on {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Loading Spinner */
+        .loading-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--surface-variant);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <header id="app-header">
-        <div id="header-left">
-            <button class="icon-btn" id="btn-back-home" onclick="goHome()" title="Voltar para Início" style="display:none;">⬅</button>
-            <div class="header-brand" id="brand-title">
-                <span class="badge-1611">1611</span> Bíblia Bilíngue
+    <!-- Header -->
+    <header>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="icon-btn" id="btn-back-home" style="display:none;" onclick="goHome()" title="Voltar ao Início">
+                ⬅
+            </button>
+            <div class="header-brand" id="brand-title" onclick="goHome()">
+                <span>📖</span>
+                <span>Bíblia 1611</span>
+                <span class="badge-1611">KJV • Bilíngue</span>
             </div>
+            <button class="header-title-btn" id="reader-title-btn" style="display:none;" onclick="openBookModal()">
+                <span id="current-book-label">Gênesis 1</span>
+                <span>▾</span>
+            </button>
         </div>
-
-        <button class="header-title-btn" id="reader-title-btn" onclick="openBookModal()" style="display:none;">
-            📖 <span id="current-book-label">Gênesis 1</span>
-        </button>
-
         <div class="header-actions">
-            <button class="icon-btn" onclick="openStatsModal()" title="Estatísticas">📊</button>
+            <button class="icon-btn" onclick="openSearchModal()" title="Buscar Versículos">🔍</button>
+            <button class="icon-btn" onclick="openFavsModal()" title="Favoritos">⭐</button>
             <button class="icon-btn" onclick="openSettingsModal()" title="Configurações">⚙️</button>
         </div>
     </header>
@@ -568,34 +726,35 @@
         <!-- 1. HOME VIEW -->
         <section class="view-section active" id="view-home">
             <div class="home-card home-hero">
-                <div class="card-tag">Continuar Leitura</div>
-                <h2 id="home-last-book-title" style="font-family: var(--font-serif); margin-bottom: 4px;">Gênesis 1</h2>
-                <p style="color: var(--text-secondary); font-size: 14px;">Authorized King James Version • Texto bilíngue com áudio sincronizado.</p>
+                <div class="card-tag">Leitura Atual</div>
+                <h2 style="font-family: var(--font-serif); margin-bottom: 4px; font-size: 20px;" id="home-last-book-title">Gênesis 1 (Genesis)</h2>
+                <p style="color: var(--text-secondary); font-size: 13px;">King James Version 1611 com tradução em Português.</p>
                 <button class="primary-action-btn" onclick="continueReading()">
-                    📖 Abrir Leitor no Capítulo Atual
+                    <span>Continuar Leitura</span>
+                    <span>→</span>
                 </button>
             </div>
 
             <div class="home-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="card-tag" style="margin:0;">Meu Progresso Bíblico</div>
-                    <span style="font-size: 12px; font-weight: bold; color: var(--primary-color);" id="home-progress-pct">0%</span>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="card-tag" style="margin-bottom:0;">Progresso da Bíblia</div>
+                    <span style="font-weight:bold; color:var(--primary-color); font-size:14px;" id="home-progress-pct">0%</span>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="home-progress-bar"></div>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-box-val" id="home-chapters-count">0</div>
-                        <div class="stat-box-label">Capítulos</div>
-                    </div>
-                    <div class="stat-box">
                         <div class="stat-box-val" id="home-verses-count">0</div>
                         <div class="stat-box-label">Versículos Lidos</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-box-val" id="home-streak-count">0 dias</div>
-                        <div class="stat-box-label">Sequência</div>
+                        <div class="stat-box-val" id="home-chapters-count">0</div>
+                        <div class="stat-box-label">Capítulos Lidos</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="home-total-books-count">66</div>
+                        <div class="stat-box-label">Livros Totais</div>
                     </div>
                 </div>
             </div>
@@ -613,17 +772,22 @@
                 </button>
             </div>
 
-            <h3 style="margin: 18px 0 10px 0; font-size: 16px;">Explorar Livros da Bíblia</h3>
+            <h3 style="margin: 18px 0 6px 0; font-size: 16px;">Todos os 66 Livros da Bíblia</h3>
+            <div class="filter-tabs">
+                <button class="filter-chip active" id="filter-all" onclick="setHomeFilter('all')">Todos (66)</button>
+                <button class="filter-chip" id="filter-old" onclick="setHomeFilter('old')">Antigo Testamento (39)</button>
+                <button class="filter-chip" id="filter-new" onclick="setHomeFilter('new')">Novo Testamento (27)</button>
+            </div>
             <div id="home-books-preview"></div>
         </section>
 
         <!-- 2. READER VIEW -->
         <section class="view-section" id="view-reader">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-                <button class="verse-btn" onclick="goHome()">⬅ Voltar ao Início</button>
+                <button class="verse-btn" onclick="goHome()">⬅ Início</button>
                 <div style="display:flex; gap:6px;">
-                    <button class="verse-btn" onclick="prevChapter()">◀ Anterior</button>
-                    <button class="verse-btn" onclick="nextChapter()">Próximo ▶</button>
+                    <button class="verse-btn" id="btn-prev-chapter" onclick="prevChapter()">◀ Anterior</button>
+                    <button class="verse-btn" id="btn-next-chapter" onclick="nextChapter()">Próximo ▶</button>
                 </div>
             </div>
 
@@ -635,10 +799,11 @@
             <div style="display:flex; gap:8px; margin-bottom: 12px; flex-wrap:wrap;">
                 <button class="verse-btn" id="btn-dl-chapter" onclick="downloadCurrentChapter()">⬇️ Baixar Capítulo</button>
                 <button class="verse-btn" id="btn-dl-book" onclick="downloadWholeBook()">⬇️ Baixar Livro Inteiro</button>
+                <button class="verse-btn" onclick="openBookModal()">📑 Trocar Livro / Cap.</button>
             </div>
 
             <div class="argument-card">
-                <div class="argument-title">📜 The Argument (1611 Original Preface)</div>
+                <div class="argument-title">📜 The Argument (Prefácio Original de 1611)</div>
                 <div class="argument-body" id="argument-content"></div>
             </div>
 
@@ -648,9 +813,10 @@
 
     <!-- Floating Audio Bar -->
     <div class="audio-bar" id="audio-bar">
-        <div class="audio-bar-header">
-            <span id="audio-status-label">🔊 Áudio KJV 1611 em espera</span>
-            <span id="audio-speed-indicator" style="cursor:pointer;" onclick="toggleSpeed()">Velocidade: 1.0x</span>
+        <button class="icon-btn" onclick="stopAudio()" title="Fechar Áudio" style="font-size:14px;">✕</button>
+        <div class="audio-bar-info">
+            <div class="audio-bar-title" id="audio-title-label">Narração KJV 1611</div>
+            <div class="audio-bar-sub" id="audio-status-label">Pronto</div>
         </div>
         <div class="audio-controls">
             <button class="icon-btn" onclick="prevVerse()" title="Versículo Anterior">⏮</button>
@@ -673,6 +839,10 @@
             <span>📚</span>
             <span>Livros</span>
         </button>
+        <button class="nav-item" id="nav-btn-favs" onclick="openFavsModal()">
+            <span>⭐</span>
+            <span>Favoritos</span>
+        </button>
         <button class="nav-item" id="nav-btn-stats" onclick="openStatsModal()">
             <span>📊</span>
             <span>Progresso</span>
@@ -687,14 +857,44 @@
                 <button class="icon-btn" onclick="closeModals()">✕</button>
             </div>
             <div id="books-list-view">
-                <input type="text" id="book-search-input" placeholder="Buscar livro (ex: Salmos, João)..." style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 12px;" oninput="filterBooks()">
+                <input type="text" id="book-search-input" class="search-input-field" placeholder="Filtrar por nome (ex: Salmos, Romanos, Genesis)..." oninput="filterBooks()">
+                <div class="filter-tabs" style="margin-top:0;">
+                    <button class="filter-chip active" id="modal-filter-all" onclick="setModalFilter('all')">Todos</button>
+                    <button class="filter-chip" id="modal-filter-old" onclick="setModalFilter('old')">Antigo (39)</button>
+                    <button class="filter-chip" id="modal-filter-new" onclick="setModalFilter('new')">Novo (27)</button>
+                </div>
                 <div id="books-items-container" style="display:flex; flex-direction:column; gap:6px; max-height: 50vh; overflow-y:auto;"></div>
             </div>
             <div id="chapters-grid-view" style="display:none;">
                 <button class="verse-btn" onclick="backToBooks()" style="margin-bottom:10px;">← Voltar aos Livros</button>
-                <h4 id="selected-book-name-title"></h4>
+                <h4 id="selected-book-name-title" style="margin-bottom: 6px;"></h4>
                 <div class="chapter-grid" id="chapters-cells-container"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Buscar nos Versículos</h3>
+                <button class="icon-btn" onclick="closeModals()">✕</button>
+            </div>
+            <input type="text" id="verse-search-input" class="search-input-field" placeholder="Digite uma palavra (ex: amor, fé, luz, faith)..." oninput="doSearchVerses()">
+            <div id="search-results-container" style="max-height: 55vh; overflow-y:auto;">
+                <p style="color:var(--text-secondary); font-size:13px; text-align:center; padding:20px;">Digite pelo menos 3 letras para pesquisar nos capítulos carregados e offline.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div class="modal-overlay" id="favs-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⭐ Versículos Favoritos</h3>
+                <button class="icon-btn" onclick="closeModals()">✕</button>
+            </div>
+            <div id="favs-list-container" style="max-height: 55vh; overflow-y:auto;"></div>
         </div>
     </div>
 
@@ -706,11 +906,11 @@
                 <button class="icon-btn" onclick="closeModals()">✕</button>
             </div>
             <div style="margin-bottom:16px;">
-                <span style="font-weight:600; display:block; margin-bottom:6px;">Tema de Leitura</span>
+                <span style="font-weight:600; display:block; margin-bottom:6px;">Tema Visual</span>
                 <div class="theme-buttons">
-                    <button class="theme-btn" id="theme-btn-sepia" onclick="setTheme('sepia')">Sépia</button>
-                    <button class="theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">Escuro</button>
-                    <button class="theme-btn" id="theme-btn-light" onclick="setTheme('light')">Claro</button>
+                    <button class="theme-btn" id="theme-btn-sepia" onclick="setTheme('sepia')">Sépia 📜</button>
+                    <button class="theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">Escuro 🌙</button>
+                    <button class="theme-btn" id="theme-btn-light" onclick="setTheme('light')">Claro ☀️</button>
                 </div>
             </div>
             <div style="margin-bottom:16px;">
@@ -718,12 +918,21 @@
                 <input type="range" min="14" max="28" value="18" style="width: 100%;" oninput="setFontSize(this.value)">
             </div>
             <div style="margin-bottom:16px;">
-                <span style="font-weight:600; display:block; margin-bottom:6px;">Modo de Voz</span>
-                <select id="voice-mode-select" onchange="setVoiceMode(this.value)" style="width:100%; padding:8px; border-radius:8px;">
+                <span style="font-weight:600; display:block; margin-bottom:6px;">Modo de Narração (Áudio)</span>
+                <select id="voice-mode-select" class="search-input-field" onchange="setVoiceMode(this.value)">
                     <option value="bilingual">Bilíngue (Inglês KJV + Português)</option>
-                    <option value="en">Somente Inglês (KJV 1611)</option>
                     <option value="pt">Somente Português</option>
+                    <option value="en">Somente Inglês (KJV 1611)</option>
                 </select>
+            </div>
+            <div style="margin-bottom:16px;">
+                <span style="font-weight:600; display:block; margin-bottom:6px;">Velocidade do Áudio: <span id="speed-label">1.0x</span></span>
+                <input type="range" min="0.6" max="1.8" step="0.1" value="1.0" id="audio-speed-slider" style="width: 100%;" oninput="setSpeed(this.value)">
+            </div>
+            <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <button class="verse-btn" style="background: rgba(239,68,68,0.1); color: #ef4444; border-color: #ef4444; width: 100%; padding: 10px; justify-content:center;" onclick="clearAllData()">
+                    🗑️ Limpar Todos os Downloads e Cache
+                </button>
             </div>
         </div>
     </div>
@@ -732,7 +941,7 @@
     <div class="modal-overlay" id="stats-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Progresso e Estatísticas</h3>
+                <h3>Progresso de Leitura</h3>
                 <button class="icon-btn" onclick="closeModals()">✕</button>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:14px;">
@@ -746,7 +955,9 @@
                 </div>
             </div>
             <button class="primary-action-btn" onclick="markChapterRead()">✓ Marcar Este Capítulo como Lido</button>
-            <button class="primary-action-btn" style="background: transparent; color: #b00020; border: 1px solid #b00020; margin-top: 8px;" onclick="resetStats()">Reiniciar / Zerar Todo o Progresso (0%)</button>
+            <button class="primary-action-btn" style="background: transparent; color: #b00020; border: 1px solid #b00020; margin-top: 8px;" onclick="resetStats()">
+                Reiniciar / Zerar Todo o Progresso (0%)
+            </button>
         </div>
     </div>
 
@@ -758,31 +969,112 @@
             <div class="progress-bar-container" style="margin: 16px 0;">
                 <div class="progress-bar-fill" id="dl-progress-bar" style="width:0%;"></div>
             </div>
-            <p style="font-size:12px; color:var(--text-secondary);">Por favor, aguarde. Pausa de 1.5s entre capítulos para respeitar a API.</p>
+            <p style="font-size:12px; color:var(--text-secondary);">Por favor, aguarde. Pausa preventiva de 1.2s entre capítulos para respeitar a API pública.</p>
         </div>
     </div>
 
+    <div class="toast-msg" id="toast-msg"></div>
+
     <script>
-        const BIBLE_BOOKS = [
-            { id: "GEN", namePt: "Gênesis", nameEn: "Genesis", chapters: 50 },
-            { id: "EXO", namePt: "Êxodo", nameEn: "Exodus", chapters: 40 },
-            { id: "LEV", namePt: "Levítico", nameEn: "Leviticus", chapters: 27 },
-            { id: "PSA", namePt: "Salmos", nameEn: "Psalms", chapters: 150 },
-            { id: "PRO", namePt: "Provérbios", nameEn: "Proverbs", chapters: 31 },
-            { id: "MAT", namePt: "Mateus", nameEn: "Matthew", chapters: 28 },
-            { id: "JHN", namePt: "João", nameEn: "John", chapters: 21 },
-            { id: "ROM", namePt: "Romanos", nameEn: "Romans", chapters: 16 }
+        // COMPLETO: Todos os 66 Livros da Bíblia (39 AT + 27 NT) com nomes em PT e EN e contagem de capítulos
+        const OLD_TESTAMENT = [
+            { id: "GEN", namePt: "Gênesis", nameEn: "Genesis", chapters: 50, test: "old" },
+            { id: "EXO", namePt: "Êxodo", nameEn: "Exodus", chapters: 40, test: "old" },
+            { id: "LEV", namePt: "Levítico", nameEn: "Leviticus", chapters: 27, test: "old" },
+            { id: "NUM", namePt: "Números", nameEn: "Numbers", chapters: 36, test: "old" },
+            { id: "DEU", namePt: "Deuteronômio", nameEn: "Deuteronomy", chapters: 34, test: "old" },
+            { id: "JOS", namePt: "Josué", nameEn: "Joshua", chapters: 24, test: "old" },
+            { id: "JDG", namePt: "Juízes", nameEn: "Judges", chapters: 21, test: "old" },
+            { id: "RUT", namePt: "Rute", nameEn: "Ruth", chapters: 4, test: "old" },
+            { id: "1SA", namePt: "1 Samuel", nameEn: "1 Samuel", chapters: 31, test: "old" },
+            { id: "2SA", namePt: "2 Samuel", nameEn: "2 Samuel", chapters: 24, test: "old" },
+            { id: "1KI", namePt: "1 Reis", nameEn: "1 Kings", chapters: 22, test: "old" },
+            { id: "2KI", namePt: "2 Reis", nameEn: "2 Kings", chapters: 25, test: "old" },
+            { id: "1CH", namePt: "1 Crônicas", nameEn: "1 Chronicles", chapters: 29, test: "old" },
+            { id: "2CH", namePt: "2 Crônicas", nameEn: "2 Chronicles", chapters: 36, test: "old" },
+            { id: "EZR", namePt: "Esdras", nameEn: "Ezra", chapters: 10, test: "old" },
+            { id: "NEH", namePt: "Neemias", nameEn: "Nehemiah", chapters: 13, test: "old" },
+            { id: "EST", namePt: "Ester", nameEn: "Esther", chapters: 10, test: "old" },
+            { id: "JOB", namePt: "Jó", nameEn: "Job", chapters: 42, test: "old" },
+            { id: "PSA", namePt: "Salmos", nameEn: "Psalms", chapters: 150, test: "old" },
+            { id: "PRO", namePt: "Provérbios", nameEn: "Proverbs", chapters: 31, test: "old" },
+            { id: "ECC", namePt: "Eclesiastes", nameEn: "Ecclesiastes", chapters: 12, test: "old" },
+            { id: "SNG", namePt: "Cantares", nameEn: "Song of Solomon", chapters: 8, test: "old" },
+            { id: "ISA", namePt: "Isaías", nameEn: "Isaiah", chapters: 66, test: "old" },
+            { id: "JER", namePt: "Jeremias", nameEn: "Jeremiah", chapters: 52, test: "old" },
+            { id: "LAM", namePt: "Lamentações", nameEn: "Lamentations", chapters: 5, test: "old" },
+            { id: "EZK", namePt: "Ezequiel", nameEn: "Ezekiel", chapters: 48, test: "old" },
+            { id: "DAN", namePt: "Daniel", nameEn: "Daniel", chapters: 12, test: "old" },
+            { id: "HOS", namePt: "Oseias", nameEn: "Hosea", chapters: 14, test: "old" },
+            { id: "JOL", namePt: "Joel", nameEn: "Joel", chapters: 3, test: "old" },
+            { id: "AMO", namePt: "Amós", nameEn: "Amos", chapters: 9, test: "old" },
+            { id: "OBA", namePt: "Obadias", nameEn: "Obadiah", chapters: 1, test: "old" },
+            { id: "JON", namePt: "Jonas", nameEn: "Jonah", chapters: 4, test: "old" },
+            { id: "MIC", namePt: "Miqueias", nameEn: "Micah", chapters: 7, test: "old" },
+            { id: "NAM", namePt: "Naum", nameEn: "Nahum", chapters: 3, test: "old" },
+            { id: "HAB", namePt: "Habacuque", nameEn: "Habakkuk", chapters: 3, test: "old" },
+            { id: "ZEP", namePt: "Sofonias", nameEn: "Zephaniah", chapters: 3, test: "old" },
+            { id: "HAG", namePt: "Ageu", nameEn: "Haggai", chapters: 2, test: "old" },
+            { id: "ZEC", namePt: "Zacarias", nameEn: "Zechariah", chapters: 14, test: "old" },
+            { id: "MAL", namePt: "Malaquias", nameEn: "Malachi", chapters: 4, test: "old" }
         ];
 
+        const NEW_TESTAMENT = [
+            { id: "MAT", namePt: "Mateus", nameEn: "Matthew", chapters: 28, test: "new" },
+            { id: "MRK", namePt: "Marcos", nameEn: "Mark", chapters: 16, test: "new" },
+            { id: "LUK", namePt: "Lucas", nameEn: "Luke", chapters: 24, test: "new" },
+            { id: "JHN", namePt: "João", nameEn: "John", chapters: 21, test: "new" },
+            { id: "ACT", namePt: "Atos", nameEn: "Acts", chapters: 28, test: "new" },
+            { id: "ROM", namePt: "Romanos", nameEn: "Romans", chapters: 16, test: "new" },
+            { id: "1CO", namePt: "1 Coríntios", nameEn: "1 Corinthians", chapters: 16, test: "new" },
+            { id: "2CO", namePt: "2 Coríntios", nameEn: "2 Corinthians", chapters: 13, test: "new" },
+            { id: "GAL", namePt: "Gálatas", nameEn: "Galatians", chapters: 6, test: "new" },
+            { id: "EPH", namePt: "Efésios", nameEn: "Ephesians", chapters: 6, test: "new" },
+            { id: "PHP", namePt: "Filipenses", nameEn: "Philippians", chapters: 4, test: "new" },
+            { id: "COL", namePt: "Colossenses", nameEn: "Colossians", chapters: 4, test: "new" },
+            { id: "1TH", namePt: "1 Tessalonicenses", nameEn: "1 Thessalonians", chapters: 5, test: "new" },
+            { id: "2TH", namePt: "2 Tessalonicenses", nameEn: "2 Thessalonians", chapters: 3, test: "new" },
+            { id: "1TI", namePt: "1 Timóteo", nameEn: "1 Timothy", chapters: 6, test: "new" },
+            { id: "2TI", namePt: "2 Timóteo", nameEn: "2 Timothy", chapters: 4, test: "new" },
+            { id: "TIT", namePt: "Tito", nameEn: "Titus", chapters: 3, test: "new" },
+            { id: "PHM", namePt: "Filemom", nameEn: "Philemon", chapters: 1, test: "new" },
+            { id: "HEB", namePt: "Hebreus", nameEn: "Hebrews", chapters: 13, test: "new" },
+            { id: "JAS", namePt: "Tiago", nameEn: "James", chapters: 5, test: "new" },
+            { id: "1PE", namePt: "1 Pedro", nameEn: "1 Peter", chapters: 5, test: "new" },
+            { id: "2PE", namePt: "2 Pedro", nameEn: "2 Peter", chapters: 3, test: "new" },
+            { id: "1JN", namePt: "1 João", nameEn: "1 John", chapters: 5, test: "new" },
+            { id: "2JN", namePt: "2 João", nameEn: "2 John", chapters: 1, test: "new" },
+            { id: "3JN", namePt: "3 João", nameEn: "3 John", chapters: 1, test: "new" },
+            { id: "JUD", namePt: "Judas", nameEn: "Jude", chapters: 1, test: "new" },
+            { id: "REV", namePt: "Apocalipse", nameEn: "Revelation", chapters: 22, test: "new" }
+        ];
+
+        const ALL_BOOKS = OLD_TESTAMENT.concat(NEW_TESTAMENT);
+
+        // Preloaded Initial Chapters (Immediate offline availability for first run)
         const PRELOADED = {
             "GEN_1": {
-                argument: "THE ARGUMENT (Authorized 1611 Edition): The creation of heaven and earth, of the light, of the firmament, of man in the image of God. Also the appointment of food.",
+                argument: "THE ARGUMENT (Authorized 1611 Edition): The creation of heaven and earth, of the light, of the firmament, of the sun, moon, and stars, of man in the image of God. Also the appointment of food.",
                 verses: [
-                    { number: 1, textEn: "In the beginning God created the heaven and the earth.", textPt: "No princípio Deus criou os céus e a terra." },
+                    { number: 1, textEn: "In the beginning God created the heaven and the earth.", textPt: "No princípio criou Deus os céus e a terra." },
                     { number: 2, textEn: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.", textPt: "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas." },
                     { number: 3, textEn: "And God said, Let there be light: and there was light.", textPt: "E disse Deus: Haja luz; e houve luz." },
                     { number: 4, textEn: "And God saw the light, that it was good: and God divided the light from the darkness.", textPt: "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas." },
-                    { number: 5, textEn: "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.", textPt: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o primeiro dia." }
+                    { number: 5, textEn: "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.", textPt: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro." },
+                    { number: 6, textEn: "And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.", textPt: "E disse Deus: Haja uma expansão no meio das águas, e haja separação entre águas e águas." },
+                    { number: 7, textEn: "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so.", textPt: "E fez Deus a expansão, e fez separação entre as águas que estavam debaixo da expansão e as águas que estavam sobre a expansão; e assim foi." },
+                    { number: 8, textEn: "And God called the firmament Heaven. And the evening and the morning were the second day.", textPt: "E chamou Deus à expansão Céus, e foi a tarde e a manhã, o dia segundo." },
+                    { number: 9, textEn: "And God said, Let the waters under the heaven be gathered together unto one place, and let the dry land appear: and it was so.", textPt: "E disse Deus: Ajuntem-se as águas debaixo dos céus num lugar; e apareça a porção seca; e assim foi." },
+                    { number: 10, textEn: "And God called the dry land Earth; and the gathering together of the waters called he Seas: and God saw that it was good.", textPt: "E chamou Deus à porção seca Terra; e ao ajuntamento das águas chamou Mares; e viu Deus que era bom." },
+                    { number: 11, textEn: "And God said, Let the earth bring forth grass, the herb yielding seed, and the fruit tree yielding fruit after his kind, whose seed is in itself, upon the earth: and it was so.", textPt: "E disse Deus: Produza a terra erva verde, erva que dê semente, árvore frutífera que dê fruto segundo a sua espécie, cuja semente está nela sobre a terra; e assim foi." },
+                    { number: 12, textEn: "And the earth brought forth grass, and herb yielding seed after his kind, and the tree yielding fruit, whose seed was in itself, after his kind: and God saw that it was good.", textPt: "E a terra produziu erva, erva dando semente conforme a sua espécie, e a árvore frutífera, cuja semente está nela conforme a sua espécie; e viu Deus que era bom." },
+                    { number: 13, textEn: "And the evening and the morning were the third day.", textPt: "E foi a tarde e a manhã, o dia terceiro." },
+                    { number: 14, textEn: "And God said, Let there be lights in the firmament of the heaven to divide the day from the night; and let them be for signs, and for seasons, and for days, and years.", textPt: "E disse Deus: Haja luminares na expansão dos céus, para haver separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos." },
+                    { number: 15, textEn: "And let them be for lights in the firmament of the heaven to give light upon the earth: and it was so.", textPt: "E sejam para luminares na expansão dos céus, para iluminar a terra; e assim foi." },
+                    { number: 16, textEn: "And God made two great lights; the greater light to rule the day, and the lesser light to rule the night: he made the stars also.", textPt: "E fez Deus os dois grandes luminares: o luminar maior para governar o dia, e o luminar menor para governar a noite; e fez as estrelas." },
+                    { number: 26, textEn: "And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the fowl of the air.", textPt: "E disse Deus: Façamos o homem à nossa imagem, conforme a nossa semelhança; e domine sobre os peixes do mar, e sobre as aves dos céus." },
+                    { number: 27, textEn: "So God created man in his own image, in the image of God created he him; male and female created he them.", textPt: "E criou Deus o homem à sua imagem; à imagem de Deus o criou; homem e mulher os criou." },
+                    { number: 31, textEn: "And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day.", textPt: "E viu Deus tudo quanto tinha feito, e eis que era muito bom; e foi a tarde e a manhã, o dia sexto." }
                 ]
             },
             "PSA_23": {
@@ -791,9 +1083,9 @@
                     { number: 1, textEn: "The LORD is my shepherd; I shall not want.", textPt: "O SENHOR é o meu pastor, nada me faltará." },
                     { number: 2, textEn: "He maketh me to lie down in green pastures: he leadeth me beside the still waters.", textPt: "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas." },
                     { number: 3, textEn: "He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.", textPt: "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome." },
-                    { number: 4, textEn: "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me.", textPt: "Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo." },
-                    { number: 5, textEn: "Thou preparest a table before me in the presence of mine enemies.", textPt: "Preparas uma mesa perante mim na presença dos meus inimigos." },
-                    { number: 6, textEn: "Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever.", textPt: "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida." }
+                    { number: 4, textEn: "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.", textPt: "Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam." },
+                    { number: 5, textEn: "Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over.", textPt: "Preparas uma mesa perante mim na presença dos meus inimigos, unges a minha cabeça com óleo, o meu cálice transborda." },
+                    { number: 6, textEn: "Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever.", textPt: "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR por longos dias." }
                 ]
             },
             "JHN_1": {
@@ -801,31 +1093,52 @@
                 verses: [
                     { number: 1, textEn: "In the beginning was the Word, and the Word was with God, and the Word was God.", textPt: "No princípio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus." },
                     { number: 2, textEn: "The same was in the beginning with God.", textPt: "Ele estava no princípio com Deus." },
-                    { number: 3, textEn: "All things were made by him; and without him was not any thing made that was made.", textPt: "Todas as coisas foram feitas por ele, e sem ele nada do que foi feito se fez." }
+                    { number: 3, textEn: "All things were made by him; and without him was not any thing made that was made.", textPt: "Todas as coisas foram feitas por ele, e sem ele nada do que foi feito se fez." },
+                    { number: 4, textEn: "In him was life; and the life was the light of men.", textPt: "Nele estava a vida, e a vida era a luz dos homens." },
+                    { number: 5, textEn: "And the light shineth in darkness; and the darkness comprehended it not.", textPt: "E a luz resplandece nas trevas, e as trevas não a compreenderam." },
+                    { number: 14, textEn: "And the Word was made flesh, and dwelt among us, (and we beheld his glory, the glory as of the only begotten of the Father,) full of grace and truth.", textPt: "E o Verbo se fez carne, e habitou entre nós, e vimos a sua glória, como a glória do unigênito do Pai, cheio de graça e de verdade." }
                 ]
             }
         };
 
-        // State: starts ZEROED strictly if not previously set by user
+        // State Management
         let currentBookId = localStorage.getItem("kjv_book") || "GEN";
         let currentChapter = parseInt(localStorage.getItem("kjv_chapter")) || 1;
         let currentVerseIndex = -1;
         let isPlaying = false;
         let speechSpeed = parseFloat(localStorage.getItem("kjv_speed")) || 1.0;
         let voiceMode = localStorage.getItem("kjv_voice_mode") || "bilingual";
+        let homeFilter = "all";
+        let modalFilter = "all";
+        let activeChapterVerses = [];
+        let toastTimeout = null;
 
+        // Initialize App
         document.addEventListener("DOMContentLoaded", () => {
             const savedTheme = localStorage.getItem("kjv_theme") || "sepia";
             setTheme(savedTheme);
             const savedFont = localStorage.getItem("kjv_font_size") || "18";
             setFontSize(savedFont);
+            const savedSpeed = localStorage.getItem("kjv_speed") || "1.0";
+            setSpeed(savedSpeed);
+            if (document.getElementById("voice-mode-select")) {
+                document.getElementById("voice-mode-select").value = voiceMode;
+            }
+
             renderHomeBooksPreview();
             updateStatsUI();
             updateHomeCard();
+
+            // Handle browser popstate for back button
+            window.addEventListener("popstate", (e) => {
+                if (document.getElementById("view-reader").classList.contains("active")) {
+                    goHome(false);
+                }
+            });
         });
 
-        // Navigation between Home and Reader with working Back Button
-        function goHome() {
+        // Navigation
+        function goHome(pushState = true) {
             stopAudio();
             document.getElementById("view-home").classList.add("active");
             document.getElementById("view-reader").classList.remove("active");
@@ -834,8 +1147,13 @@
             document.getElementById("reader-title-btn").style.display = "none";
             document.getElementById("nav-btn-home").classList.add("active");
             document.getElementById("nav-btn-reader").classList.remove("active");
+            closeModals();
             updateStatsUI();
             updateHomeCard();
+            if (pushState && window.history.state) {
+                window.history.pushState(null, "", window.location.pathname);
+            }
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
         function goToReader() {
@@ -846,6 +1164,8 @@
             document.getElementById("reader-title-btn").style.display = "flex";
             document.getElementById("nav-btn-home").classList.remove("active");
             document.getElementById("nav-btn-reader").classList.add("active");
+            closeModals();
+            window.history.pushState({ screen: "reader" }, "", "#reader");
             loadChapter(currentBookId, currentChapter);
         }
 
@@ -860,22 +1180,40 @@
         }
 
         function updateHomeCard() {
-            const book = BIBLE_BOOKS.find(b => b.id === currentBookId) || BIBLE_BOOKS[0];
+            const book = ALL_BOOKS.find(b => b.id === currentBookId) || ALL_BOOKS[0];
             document.getElementById("home-last-book-title").innerText = `${book.namePt} ${currentChapter} (${book.nameEn})`;
+        }
+
+        function setHomeFilter(type) {
+            homeFilter = type;
+            document.querySelectorAll(".filter-chip").forEach(c => {
+                if (c.id === `filter-${type}`) c.classList.add("active");
+                else if (c.id.startsWith("filter-")) c.classList.remove("active");
+            });
+            renderHomeBooksPreview();
         }
 
         function renderHomeBooksPreview() {
             const container = document.getElementById("home-books-preview");
             container.innerHTML = "";
-            BIBLE_BOOKS.forEach(b => {
+            let list = ALL_BOOKS;
+            if (homeFilter === "old") list = OLD_TESTAMENT;
+            if (homeFilter === "new") list = NEW_TESTAMENT;
+
+            const downloadedBooks = JSON.parse(localStorage.getItem("kjv_downloaded_books") || "[]");
+
+            list.forEach(b => {
+                const isDown = downloadedBooks.includes(b.id);
                 const row = document.createElement("div");
                 row.className = "book-row";
                 row.innerHTML = `
                     <div>
-                        <strong>${b.namePt}</strong> <small style="color:var(--text-secondary);">(${b.nameEn})</small>
+                        <strong>${b.namePt}</strong> 
+                        <small style="color:var(--text-secondary);">(${b.nameEn})</small>
                     </div>
-                    <div style="font-size:12px; color:var(--primary-color); font-weight:bold;">
-                        ${b.chapters} caps →
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        ${isDown ? '<span class="offline-tag">Offline ✓</span>' : ''}
+                        <span style="font-size:12px; color:var(--primary-color); font-weight:bold;">${b.chapters} caps →</span>
                     </div>
                 `;
                 row.onclick = () => openChapter(b.id, 1);
@@ -883,24 +1221,7 @@
             });
         }
 
-        let activeChapterVerses = [];
-
-        function updateDownloadButtonsState() {
-            const chBtn = document.getElementById("btn-dl-chapter");
-            const bookBtn = document.getElementById("btn-dl-book");
-            if (!chBtn || !bookBtn) return;
-
-            const isChDownloaded = localStorage.getItem(`kjv_chapter_${currentBookId}_${currentChapter}`) !== null;
-            const downloadedBooks = JSON.parse(localStorage.getItem("kjv_downloaded_books") || "[]");
-            const isBookDownloaded = downloadedBooks.includes(currentBookId);
-
-            chBtn.innerText = isChDownloaded ? "Capítulo Salvo ✓" : "⬇️ Baixar Capítulo";
-            chBtn.style.opacity = isChDownloaded ? "0.85" : "1";
-
-            bookBtn.innerText = isBookDownloaded ? "Livro Salvo ✓" : "⬇️ Baixar Livro Inteiro";
-            bookBtn.style.opacity = isBookDownloaded ? "0.85" : "1";
-        }
-
+        // Data Fetching and Chapter Loading
         async function fetchChapterData(bookEn, cap) {
             let attempt = 0;
             while (attempt < 3) {
@@ -923,13 +1244,272 @@
                     }
                 } catch(e) {}
                 attempt++;
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1500));
             }
             return null;
         }
 
+        async function loadChapter(bookId, ch) {
+            currentBookId = bookId;
+            currentChapter = ch;
+            localStorage.setItem("kjv_book", bookId);
+            localStorage.setItem("kjv_chapter", ch);
+
+            const book = ALL_BOOKS.find(b => b.id === bookId) || ALL_BOOKS[0];
+            document.getElementById("current-book-label").innerText = `${book.namePt} ${ch}`;
+            document.getElementById("chapter-title-display").innerText = `${book.namePt} ${ch} (${book.nameEn})`;
+            document.getElementById("btn-prev-chapter").disabled = (ch <= 1);
+            document.getElementById("btn-next-chapter").disabled = (ch >= book.chapters);
+
+            const key = `${bookId}_${ch}`;
+            let data = null;
+
+            // 1. Check local cache
+            const savedLocal = localStorage.getItem(`kjv_chapter_${bookId}_${ch}`);
+            if (savedLocal) {
+                try { data = JSON.parse(savedLocal); } catch(e) {}
+            }
+
+            // 2. Check preloaded
+            if (!data && PRELOADED[key]) {
+                data = PRELOADED[key];
+            }
+
+            // 3. If still null, try fetching online automatically
+            if (!data) {
+                document.getElementById("verses-list").innerHTML = `
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Carregando ${book.namePt} ${ch} da API...</p>
+                    </div>
+                `;
+                document.getElementById("argument-content").innerText = `Carregando o texto sagrado bilíngue de ${book.namePt}...`;
+
+                try {
+                    const verses = await fetchChapterData(book.nameEn, ch);
+                    if (verses && verses.length > 0) {
+                        data = {
+                            argument: `THE ARGUMENT (1611 Edition): The sacred testimony and divine instruction of ${book.nameEn}, chapter ${ch}.`,
+                            verses: verses
+                        };
+                        // Save in cache
+                        localStorage.setItem(`kjv_chapter_${bookId}_${ch}`, JSON.stringify(data));
+                    }
+                } catch(e) {}
+            }
+
+            // 4. Fallback if offline and not in cache
+            if (!data) {
+                data = {
+                    argument: `THE ARGUMENT (1611 Preface): The sacred testimony and counsel of ${book.nameEn}, chapter ${ch}.`,
+                    verses: [
+                        { number: 1, textEn: "For God so loved the world, that he gave his only begotten Son.", textPt: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito." },
+                        { number: 2, textEn: "Thy word is a lamp unto my feet, and a light unto my path.", textPt: "Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho." }
+                    ]
+                };
+                showToast("Sem conexão para carregar este capítulo. Conecte-se para baixar.");
+            }
+
+            activeChapterVerses = data.verses;
+            document.getElementById("argument-content").innerText = data.argument;
+            renderVerses(data.verses);
+            updateDownloadButtonsState();
+            stopAudio();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function renderVerses(verses) {
+            const container = document.getElementById("verses-list");
+            container.innerHTML = "";
+            const favs = JSON.parse(localStorage.getItem("kjv_favorites") || "[]");
+
+            verses.forEach((v, idx) => {
+                const favKey = `${currentBookId}_${currentChapter}_${v.number}`;
+                const isFav = favs.some(f => f.key === favKey);
+
+                const item = document.createElement("div");
+                item.className = "verse-item";
+                item.id = `verse-${idx}`;
+                item.innerHTML = `
+                    <div class="verse-top">
+                        <span class="verse-number">${v.number}</span>
+                        <div class="verse-actions">
+                            <button class="verse-btn ${isFav ? 'is-fav' : ''}" onclick="toggleFav('${currentBookId}', ${currentChapter}, ${v.number}, this)">
+                                ${isFav ? '★ Favorito' : '☆ Salvar'}
+                            </button>
+                            <button class="verse-btn" onclick="playSingleVerse(${idx})">🔊 Ouvir</button>
+                            <button class="verse-btn" onclick="copyVerse('${v.textEn.replace(/'/g, "\\'")}', '${v.textPt.replace(/'/g, "\\'")}', ${v.number})">📋 Copiar</button>
+                        </div>
+                    </div>
+                    <div class="verse-en" onclick="playSingleVerse(${idx})">${v.textEn}</div>
+                    <div class="verse-divider"></div>
+                    <div class="verse-pt">${v.textPt}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Favorites
+        function toggleFav(bookId, ch, vNum, btn) {
+            const book = ALL_BOOKS.find(b => b.id === bookId) || ALL_BOOKS[0];
+            const v = activeChapterVerses.find(item => item.number === vNum);
+            if (!v) return;
+
+            let favs = JSON.parse(localStorage.getItem("kjv_favorites") || "[]");
+            const favKey = `${bookId}_${ch}_${vNum}`;
+            const existingIdx = favs.findIndex(f => f.key === favKey);
+
+            if (existingIdx >= 0) {
+                favs.splice(existingIdx, 1);
+                if (btn) {
+                    btn.classList.remove("is-fav");
+                    btn.innerText = "☆ Salvar";
+                }
+                showToast("Versículo removido dos favoritos.");
+            } else {
+                favs.push({
+                    key: favKey,
+                    bookId: bookId,
+                    bookNamePt: book.namePt,
+                    bookNameEn: book.nameEn,
+                    chapter: ch,
+                    verseNumber: vNum,
+                    textEn: v.textEn,
+                    textPt: v.textPt
+                });
+                if (btn) {
+                    btn.classList.add("is-fav");
+                    btn.innerText = "★ Favorito";
+                }
+                showToast("Versículo adicionado aos favoritos!");
+            }
+            localStorage.setItem("kjv_favorites", JSON.stringify(favs));
+        }
+
+        function openFavsModal() {
+            const modal = document.getElementById("favs-modal");
+            modal.classList.add("active");
+            const container = document.getElementById("favs-list-container");
+            const favs = JSON.parse(localStorage.getItem("kjv_favorites") || "[]");
+
+            if (favs.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-secondary);">Nenhum favorito ainda.<br>Clique no botão <strong>☆ Salvar</strong> de qualquer versículo para vê-lo aqui.</div>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            favs.forEach(f => {
+                const div = document.createElement("div");
+                div.className = "search-result-item";
+                div.innerHTML = `
+                    <div class="search-result-ref">${f.bookNamePt} ${f.chapter}:${f.verseNumber} (${f.bookNameEn})</div>
+                    <div style="font-size:13px; font-style:italic; margin-bottom:4px;">"${f.textEn}"</div>
+                    <div style="font-size:13px; color:var(--text-secondary);">"${f.textPt}"</div>
+                `;
+                div.onclick = () => {
+                    closeModals();
+                    openChapter(f.bookId, f.chapter);
+                };
+                container.appendChild(div);
+            });
+        }
+
+        // Full Search
+        function openSearchModal() {
+            document.getElementById("search-modal").classList.add("active");
+            setTimeout(() => document.getElementById("verse-search-input").focus(), 150);
+        }
+
+        function doSearchVerses() {
+            const q = document.getElementById("verse-search-input").value.trim().toLowerCase();
+            const container = document.getElementById("search-results-container");
+            if (q.length < 3) {
+                container.innerHTML = `<p style="color:var(--text-secondary); font-size:13px; text-align:center; padding:20px;">Digite pelo menos 3 letras...</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            let results = [];
+
+            // Search in preloaded
+            Object.keys(PRELOADED).forEach(k => {
+                const parts = k.split("_");
+                const bId = parts[0];
+                const ch = parseInt(parts[1]);
+                const b = ALL_BOOKS.find(item => item.id === bId);
+                if (b && PRELOADED[k].verses) {
+                    PRELOADED[k].verses.forEach(v => {
+                        if (v.textPt.toLowerCase().includes(q) || v.textEn.toLowerCase().includes(q)) {
+                            results.push({ book: b, chapter: ch, verse: v });
+                        }
+                    });
+                }
+            });
+
+            // Search in downloaded cache
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith("kjv_chapter_")) {
+                    const parts = key.replace("kjv_chapter_", "").split("_");
+                    const bId = parts[0];
+                    const ch = parseInt(parts[1]);
+                    const b = ALL_BOOKS.find(item => item.id === bId);
+                    if (b) {
+                        try {
+                            const data = JSON.parse(localStorage.getItem(key));
+                            if (data && data.verses) {
+                                data.verses.forEach(v => {
+                                    if (v.textPt.toLowerCase().includes(q) || v.textEn.toLowerCase().includes(q)) {
+                                        if (!results.some(r => r.book.id === b.id && r.chapter === ch && r.verse.number === v.number)) {
+                                            results.push({ book: b, chapter: ch, verse: v });
+                                        }
+                                    }
+                                });
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            if (results.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-secondary); font-size:13px; text-align:center; padding:20px;">Nenhum versículo encontrado para "${q}". (A busca abrange capítulos em cache e pré-carregados).</p>`;
+                return;
+            }
+
+            results.slice(0, 40).forEach(r => {
+                const div = document.createElement("div");
+                div.className = "search-result-item";
+                div.innerHTML = `
+                    <div class="search-result-ref">${r.book.namePt} ${r.chapter}:${r.verse.number}</div>
+                    <div style="font-size:13px; color:var(--text-secondary);">${r.verse.textPt.substring(0, 90)}...</div>
+                `;
+                div.onclick = () => {
+                    closeModals();
+                    openChapter(r.book.id, r.chapter);
+                };
+                container.appendChild(div);
+            });
+        }
+
+        // Downloads
+        function updateDownloadButtonsState() {
+            const chBtn = document.getElementById("btn-dl-chapter");
+            const bookBtn = document.getElementById("btn-dl-book");
+            if (!chBtn || !bookBtn) return;
+
+            const isChDownloaded = localStorage.getItem(`kjv_chapter_${currentBookId}_${currentChapter}`) !== null;
+            const downloadedBooks = JSON.parse(localStorage.getItem("kjv_downloaded_books") || "[]");
+            const isBookDownloaded = downloadedBooks.includes(currentBookId);
+
+            chBtn.innerText = isChDownloaded ? "Capítulo Salvo ✓" : "⬇️ Baixar Capítulo";
+            chBtn.style.opacity = isChDownloaded ? "0.85" : "1";
+
+            bookBtn.innerText = isBookDownloaded ? "Livro Salvo ✓" : "⬇️ Baixar Livro Inteiro";
+            bookBtn.style.opacity = isBookDownloaded ? "0.85" : "1";
+        }
+
         async function downloadCurrentChapter() {
-            const book = BIBLE_BOOKS.find(b => b.id === currentBookId) || BIBLE_BOOKS[0];
+            const book = ALL_BOOKS.find(b => b.id === currentBookId) || ALL_BOOKS[0];
             const btn = document.getElementById("btn-dl-chapter");
             const oldText = btn.innerText;
             btn.innerText = "Baixando...";
@@ -944,12 +1524,12 @@
                     };
                     localStorage.setItem(`kjv_chapter_${currentBookId}_${currentChapter}`, JSON.stringify(chapterObj));
                     loadChapter(currentBookId, currentChapter);
-                    alert(`Capítulo ${book.namePt} ${currentChapter} salvo para leitura offline com texto bilíngue KJV 1611 e Almeida!`);
+                    showToast(`Capítulo ${book.namePt} ${currentChapter} salvo para leitura offline!`);
                 } else {
-                    alert("Não foi possível carregar da API no momento. Verifique sua conexão.");
+                    showToast("Não foi possível carregar da API no momento.");
                 }
             } catch(e) {
-                alert("Erro ao baixar capítulo.");
+                showToast("Erro ao baixar capítulo.");
             } finally {
                 btn.innerText = oldText;
                 btn.disabled = false;
@@ -958,7 +1538,7 @@
         }
 
         async function downloadWholeBook() {
-            const book = BIBLE_BOOKS.find(b => b.id === currentBookId) || BIBLE_BOOKS[0];
+            const book = ALL_BOOKS.find(b => b.id === currentBookId) || ALL_BOOKS[0];
             const total = book.chapters;
             const modal = document.getElementById("download-progress-modal");
             modal.classList.add("active");
@@ -974,7 +1554,7 @@
                 const verses = await fetchChapterData(book.nameEn, c);
                 if (verses && verses.length > 0) {
                     const chapterObj = {
-                        argument: `THE ARGUMENT (1611 Edition): The sacred testimony and divine instruction of ${book.nameEn}, chapter ${c}.`,
+                        argument: `THE ARGUMENT (1611 Edition): The sacred testimony of ${book.nameEn}, chapter ${c}.`,
                         verses: verses
                     };
                     localStorage.setItem(`kjv_chapter_${book.id}_${c}`, JSON.stringify(chapterObj));
@@ -982,7 +1562,7 @@
                 }
 
                 if (c < total) {
-                    await new Promise(r => setTimeout(r, 1500));
+                    await new Promise(r => setTimeout(r, 1200));
                 }
             }
 
@@ -994,79 +1574,12 @@
 
             modal.classList.remove("active");
             loadChapter(currentBookId, currentChapter);
-            alert(`${successCount} capítulos de ${book.namePt} foram baixados com sucesso offline!`);
+            showToast(`${successCount} capítulos de ${book.namePt} baixados com sucesso!`);
             updateDownloadButtonsState();
-            renderBooksList();
+            renderHomeBooksPreview();
         }
 
-        function loadChapter(bookId, ch) {
-            currentBookId = bookId;
-            currentChapter = ch;
-            localStorage.setItem("kjv_book", bookId);
-            localStorage.setItem("kjv_chapter", ch);
-
-            const book = BIBLE_BOOKS.find(b => b.id === bookId) || BIBLE_BOOKS[0];
-            document.getElementById("current-book-label").innerText = `${book.namePt} ${ch}`;
-            document.getElementById("chapter-title-display").innerText = `${book.namePt} ${ch} (${book.nameEn})`;
-
-            const key = `${bookId}_${ch}`;
-            let data = null;
-
-            // Check if saved in LocalStorage from download
-            const savedLocal = localStorage.getItem(`kjv_chapter_${bookId}_${ch}`);
-            if (savedLocal) {
-                try {
-                    data = JSON.parse(savedLocal);
-                } catch(e) {}
-            }
-
-            if (!data) {
-                data = PRELOADED[key];
-            }
-
-            if (!data) {
-                data = {
-                    argument: `THE ARGUMENT (1611 Preface): The sacred testimony and divine counsel of ${book.nameEn}, chapter ${ch}.`,
-                    verses: [
-                        { number: 1, textEn: `Thy word is a lamp unto my feet, and a light unto my path (${book.nameEn} ${ch}:1).`, textPt: `Lâmpada para os meus pés é tua palavra, e luz para o meu caminho.` },
-                        { number: 2, textEn: "The statutes of the LORD are right, rejoicing the heart.", textPt: "Os preceitos do SENHOR são retos e alegram o coração." },
-                        { number: 3, textEn: "For ever, O LORD, thy word is settled in heaven.", textPt: "Para sempre, ó SENHOR, a tua palavra permanece no céu." }
-                    ]
-                };
-            }
-
-            activeChapterVerses = data.verses;
-            document.getElementById("argument-content").innerText = data.argument;
-            renderVerses(data.verses);
-            updateDownloadButtonsState();
-            stopAudio();
-        }
-
-        function renderVerses(verses) {
-            const container = document.getElementById("verses-list");
-            container.innerHTML = "";
-
-            verses.forEach((v, idx) => {
-                const item = document.createElement("div");
-                item.className = "verse-item";
-                item.id = `verse-${idx}`;
-                item.innerHTML = `
-                    <div class="verse-top">
-                        <span class="verse-number">${v.number}</span>
-                        <div class="verse-actions">
-                            <button class="verse-btn" onclick="playSingleVerse(${idx})">🔊 Ouvir</button>
-                            <button class="verse-btn" onclick="copyVerse('${v.textEn.replace(/'/g, "\\'")}', '${v.textPt.replace(/'/g, "\\'")}', ${v.number})">📋 Copiar</button>
-                        </div>
-                    </div>
-                    <div class="verse-en" onclick="playSingleVerse(${idx})">${v.textEn}</div>
-                    <div class="verse-divider"></div>
-                    <div class="verse-pt">${v.textPt}</div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // Audio & Speech
+        // Audio Engine
         function togglePlayAudio() {
             if (isPlaying) {
                 stopAudio();
@@ -1077,12 +1590,13 @@
 
         function startAudioFrom(index) {
             if (!("speechSynthesis" in window)) {
-                alert("Seu navegador não suporta síntese de voz.");
+                showToast("Seu navegador não suporta síntese de voz.");
                 return;
             }
             window.speechSynthesis.cancel();
             isPlaying = true;
             document.getElementById("play-pause-btn").innerText = "⏸";
+            document.getElementById("audio-bar").classList.add("on");
             playVerseSequence(index);
         }
 
@@ -1098,6 +1612,8 @@
             const v = verses[index];
             recordVerseReadInStorage(v.number);
 
+            const book = ALL_BOOKS.find(b => b.id === currentBookId) || ALL_BOOKS[0];
+            document.getElementById("audio-title-label").innerText = `${book.namePt} ${currentChapter}:${v.number}`;
             document.getElementById("audio-status-label").innerText = `Lendo versículo ${v.number} de ${verses.length}`;
 
             if (voiceMode === "bilingual") {
@@ -1143,7 +1659,7 @@
             isPlaying = false;
             currentVerseIndex = -1;
             document.getElementById("play-pause-btn").innerText = "▶";
-            document.getElementById("audio-status-label").innerText = "🔊 Áudio KJV 1611 em espera";
+            document.getElementById("audio-bar").classList.remove("on");
             highlightActiveVerse(-1);
         }
 
@@ -1166,14 +1682,6 @@
             if (currentVerseIndex > 0) playVerseSequence(currentVerseIndex - 1);
         }
 
-        function toggleSpeed() {
-            const speeds = [0.75, 1.0, 1.25, 1.5, 2.0];
-            let nextIdx = (speeds.indexOf(speechSpeed) + 1) % speeds.length;
-            speechSpeed = speeds[nextIdx];
-            localStorage.setItem("kjv_speed", speechSpeed);
-            document.getElementById("audio-speed-indicator").innerText = `Velocidade: ${speechSpeed}x`;
-        }
-
         function prevChapter() {
             if (currentChapter > 1) {
                 loadChapter(currentBookId, currentChapter - 1);
@@ -1181,13 +1689,13 @@
         }
 
         function nextChapter() {
-            const book = BIBLE_BOOKS.find(b => b.id === currentBookId);
-            if (currentChapter < book.chapters) {
+            const book = ALL_BOOKS.find(b => b.id === currentBookId);
+            if (book && currentChapter < book.chapters) {
                 loadChapter(currentBookId, currentChapter + 1);
             }
         }
 
-        // Stats & Progress (Zero-based initialization)
+        // Reading Stats (Zeroed strictly on fresh install)
         function recordVerseReadInStorage(vNum) {
             let readSet = JSON.parse(localStorage.getItem("kjv_read_verses_set") || "[]");
             const key = `${currentBookId}_${currentChapter}_${vNum}`;
@@ -1209,7 +1717,7 @@
             let total = parseInt(localStorage.getItem("kjv_total_verses") || "0") + 25;
             localStorage.setItem("kjv_total_verses", total);
             updateStatsUI();
-            alert("Capítulo salvo como lido com sucesso!");
+            showToast("Capítulo salvo como lido!");
             closeModals();
         }
 
@@ -1219,7 +1727,7 @@
             localStorage.setItem("kjv_total_verses", "0");
             localStorage.setItem("kjv_streak", "0");
             updateStatsUI();
-            alert("Progresso reiniciado para 0%!");
+            showToast("Progresso reiniciado para 0%!");
             closeModals();
         }
 
@@ -1227,45 +1735,48 @@
             let totalVerses = parseInt(localStorage.getItem("kjv_total_verses") || "0");
             let completed = JSON.parse(localStorage.getItem("kjv_completed_chapters") || "[]");
             let completedCount = completed.length;
-            let streak = parseInt(localStorage.getItem("kjv_streak") || (completedCount > 0 ? "1" : "0"));
-            let pct = (completedCount / 1189 * 100).toFixed(1);
+            let pct = ((completedCount / 1189) * 100).toFixed(1);
 
             document.getElementById("stat-verses").innerText = totalVerses;
             document.getElementById("stat-chapters").innerText = completedCount;
 
             document.getElementById("home-verses-count").innerText = totalVerses;
             document.getElementById("home-chapters-count").innerText = completedCount;
-            document.getElementById("home-streak-count").innerText = `${streak} dias`;
             document.getElementById("home-progress-pct").innerText = `${pct}%`;
             document.getElementById("home-progress-bar").style.width = `${Math.min(pct, 100)}%`;
         }
 
-        // Modals
+        // Modals & Selectors
         function openBookModal() {
             document.getElementById("book-modal").classList.add("active");
             document.getElementById("books-list-view").style.display = "block";
             document.getElementById("chapters-grid-view").style.display = "none";
-            renderBooksList();
+            renderModalBooksList();
         }
 
-        function openSettingsModal() {
-            document.getElementById("settings-modal").classList.add("active");
+        function setModalFilter(type) {
+            modalFilter = type;
+            document.querySelectorAll("#book-modal .filter-chip").forEach(c => {
+                if (c.id === `modal-filter-${type}`) c.classList.add("active");
+                else c.classList.remove("active");
+            });
+            renderModalBooksList();
         }
 
-        function openStatsModal() {
-            document.getElementById("stats-modal").classList.add("active");
-            updateStatsUI();
-        }
-
-        function closeModals() {
-            document.querySelectorAll(".modal-overlay").forEach(el => el.classList.remove("active"));
-        }
-
-        function renderBooksList() {
+        function renderModalBooksList() {
             const container = document.getElementById("books-items-container");
             container.innerHTML = "";
-            let downloaded = JSON.parse(localStorage.getItem("kjv_downloaded_books") || "[]");
-            BIBLE_BOOKS.forEach(b => {
+            let list = ALL_BOOKS;
+            if (modalFilter === "old") list = OLD_TESTAMENT;
+            if (modalFilter === "new") list = NEW_TESTAMENT;
+
+            const q = document.getElementById("book-search-input").value.toLowerCase();
+            if (q) {
+                list = list.filter(b => b.namePt.toLowerCase().includes(q) || b.nameEn.toLowerCase().includes(q));
+            }
+
+            const downloaded = JSON.parse(localStorage.getItem("kjv_downloaded_books") || "[]");
+            list.forEach(b => {
                 const isDown = downloaded.includes(b.id);
                 const row = document.createElement("div");
                 row.className = "header-title-btn";
@@ -1276,7 +1787,7 @@
                         ${b.namePt} <small>(${b.nameEn})</small>
                     </span>
                     <div style="display:flex; align-items:center; gap:6px;">
-                        ${isDown ? '<span style="font-size:10px; color:var(--primary-color); font-weight:bold; background:var(--primary-light); padding:2px 6px; border-radius:6px;">Offline ✓</span>' : `<button class="verse-btn" style="padding:2px 6px; font-size:11px;" onclick="event.stopPropagation(); triggerBookDownload('${b.id}')">⬇ Baixar</button>`}
+                        ${isDown ? '<span class="offline-tag">Offline ✓</span>' : ''}
                         <small style="cursor:pointer;" onclick="selectBookForChapters(${JSON.stringify(b).replace(/"/g, '&quot;')})">${b.chapters} caps</small>
                     </div>
                 `;
@@ -1284,9 +1795,8 @@
             });
         }
 
-        function triggerBookDownload(bookId) {
-            currentBookId = bookId;
-            downloadWholeBook();
+        function filterBooks() {
+            renderModalBooksList();
         }
 
         function selectBookForChapters(book) {
@@ -1313,19 +1823,17 @@
             document.getElementById("chapters-grid-view").style.display = "none";
         }
 
-        function filterBooks() {
-            const q = document.getElementById("book-search-input").value.toLowerCase();
-            const container = document.getElementById("books-items-container");
-            container.innerHTML = "";
-            BIBLE_BOOKS.filter(b => b.namePt.toLowerCase().includes(q) || b.nameEn.toLowerCase().includes(q)).forEach(b => {
-                const row = document.createElement("div");
-                row.className = "header-title-btn";
-                row.style.width = "100%";
-                row.style.justifyContent = "space-between";
-                row.innerHTML = `<span>${b.namePt} (${b.nameEn})</span> <small>${b.chapters} caps</small>`;
-                row.onclick = () => selectBookForChapters(b);
-                container.appendChild(row);
-            });
+        function openSettingsModal() {
+            document.getElementById("settings-modal").classList.add("active");
+        }
+
+        function openStatsModal() {
+            document.getElementById("stats-modal").classList.add("active");
+            updateStatsUI();
+        }
+
+        function closeModals() {
+            document.querySelectorAll(".modal-overlay").forEach(el => el.classList.remove("active"));
         }
 
         // Settings
@@ -1345,15 +1853,40 @@
             localStorage.setItem("kjv_font_size", val);
         }
 
+        function setSpeed(val) {
+            speechSpeed = parseFloat(val);
+            document.getElementById("speed-label").innerText = `${speechSpeed.toFixed(1)}x`;
+            if (document.getElementById("audio-speed-slider")) {
+                document.getElementById("audio-speed-slider").value = speechSpeed;
+            }
+            localStorage.setItem("kjv_speed", speechSpeed);
+        }
+
         function setVoiceMode(val) {
             voiceMode = val;
             localStorage.setItem("kjv_voice_mode", val);
         }
 
+        function clearAllData() {
+            if (confirm("Tem certeza que deseja apagar todos os capítulos baixados e reiniciar o cache?")) {
+                localStorage.clear();
+                showToast("Dados limpos com sucesso. Recarregando...");
+                setTimeout(() => location.reload(), 1200);
+            }
+        }
+
         function copyVerse(en, pt, num) {
             navigator.clipboard.writeText(`${num}. "${en}"\n"${pt}"`).then(() => {
-                alert("Versículo copiado para a área de transferência!");
+                showToast("Versículo copiado!");
             });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById("toast-msg");
+            t.innerText = msg;
+            t.classList.add("on");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => t.classList.remove("on"), 3200);
         }
     </script>
 </body>
